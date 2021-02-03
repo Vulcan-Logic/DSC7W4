@@ -1,0 +1,190 @@
+---
+title: "Effect of transmission type on efficiency of classic cars"
+author: "Vineet W. Singh"
+date: "15 April 2018"
+output:
+  pdf_document: 
+    fig_width: 3.2
+    fig_height: 2
+  keep_md: true
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Summary
+The mtcars data set provides technical data and efficiency for a set of 
+classic cars sold in the US, prior to the fuel crises of the 1970's.  
+
+Using this data set, this analysis tries to address the following questions:  
+_1) Does the transmission type contribute to the efficiency of classic cars?_ 
+and  
+_2) What is the average difference in mpg of cars with_
+_different transmission types?_  
+
+The efficiency of a car, is usually measured in the average number of miles
+per gallon (**_mpg_**) it runs and the **_mpg_** depends upon a number of 
+actors.
+Linear models were made and all factors in the data set were analysed in a 
+systemic way, to find out which variables/factors have the 
+most significant effects on the efficiency (**_mpg_**) of these classic cars.  
+
+It is observed that besides the transmission type(**_am_**), 
+**_mpg_** mainly depends upon 
+the weight (**_wt_**) and the horse power (**_hp_**) of the car and this 
+relationship is approximated by the following linear equation/model:  
+**_mpg = 34.003+2.084(am)-2.879(wt)-0.038(hp)_**
+
+## Analysis  
+Exploratory data analysis involved making box plots (Appendix) in which the 
+efficiency (in **_mpg_**) was grouped by the transmission type
+(**_am_**). From the box plots itself, 
+it can be seen that manual transmission cars (*MT*/**_am_** = 1) are more 
+efficient 
+and give higher **_mpg_** than automatic transmission (*AT*/**_am_** = 0) 
+cars. However, there is considerable variation in the **_mpg_** within each 
+transmission type (**_am_**) and effects of other factors should also be 
+analysed.
+To begin with, the simplest of models is made, and this calculates as to how 
+**_mpg_** varies by **_am_** (*AT/MT*). Computation 1 (Appendix) 
+provides the first linear model: **_mpg=17.147+7.245(am)_**. The coefficients of 
+this simple model show that a _MT_ car 
+runs 24.392 **_mpg_** compared to 17.145 **_mpg_** for an _AT_ car.  
+
+Any model that calculates car **_mpg_**, should also take into consideration, 
+that **_mpg_** of any car is related to it's weight. *Should weight be included* 
+*in the model?*   
+In computation 2 (Appendix), a new model is made in which weight is included, 
+residuals are tested for normalility and ANOVA done for the 
+previous model and the new model.  
+The null hypothesis (NH) proposed for ANOVA is that omitting **_wt_** will not 
+increase the bias in the model. 
+Alternative hypothesis (AH) is that omitting **_wt_** 
+will increase the bias. 
+From ANOVA, we find that the F score is 46.115 (P value <.0001), 
+which is significant. We therefore, reject the 
+NH, accept the AH and include **_wt_** to improve the model. 
+The model changes to: **_mpg=37.322-0.024(am)-5.353(wt)_**  
+
+Next we need to test, whether to include other engine variables 
+(like horse power **_hp_**) that might effect **_mpg_**.  
+In computation 3 (Appendix), **_hp_** is added to the model and evaluated. 
+Including **_hp_** as a regressor in the model, increases variance of 
+both the **_wt_** and **_am_** coefficients, thereby increasing the overall 
+variance of the model. _Should_ **_hp_** _be included?_  
+From the shapiro test, residuals of the updated model are normal so ANOVA can be 
+performed. ANOVA tests the NH that omitting the **_hp_** will not increase 
+bias in the model and gives us a F score of 15.224 (P value < .001), which is 
+significant. The NH is rejected and **_hp_** is included in 
+the model which now transforms to: 
+**_mpg = 34.003+2.084(am)-2.879(wt)-0.038(hp)_**  
+
+**_hp_** _normally depends upon_ **_disp_** _and_ **_cyl_**. _Should these_
+_be included?_  
+We include **_disp_** and **_cyl_** in the old model and evaluate it 
+- computation 4 (Appendix). As suspected, since **_hp_** depends upon 
+**_disp_** and **_cyl_**, it is strongly correlated with both and including them 
+increases variances of the coefficients of **_am,wt,hp_**. 
+From the shapiro test, residuals are normally distributed, ANOVA can be done. 
+NH is the same as before i.e. omitting **_disp_** and **_cyl_** will not
+increase 
+the bias of the model. ANOVA of the two models gives F score of 1.369 
+(P values .27) which is not significant. Also, there is no significant reduction 
+in the RSS (residual sum of squares): 180 vs 163, between the old and new 
+models.  
+Therefore, we can accept the 
+NH and omit **_disp_** and **_cyl_** from our model.  
+
+Similarly, we include all variables (in addition to **_am , wt and hp_**) in the 
+final testing model. Based on results of computation 5 (Appendix), 
+it is inferred that
+including all the other variables in the testing model, increases the variances
+of the coefficients that matter but does not significantly 
+reduce the RSS: 180 vs 147,  between the last model 
+and the testing model. There is no gain in including any regressors
+other than **_am , wt and hp_** in the model.  
+
+## Conclusion  
+Based on the analysis, the linear model specified by 
+**_mpg = 34.003+2.084(am)-2.879(wt)-0.038(hp)_** with a standard error of 
+2.538 **_mpg_** is the best fit to the data provided.  
+Based on this model, we can 
+conclude that a *MT* car will run 2.084 miles more than an *AT* car with the 
+same **_wt/hp_**. Each ton increase in **_wt_** will decrease the car **_mpg_** by
+2.879 **_mpg_** and 
+one **_hp_** increase in engine power will decrease the car **_mpg_** by 0.038 mpg.   
+Finally, the error between the **_mpg_** for any data point in the data set
+and the **_mpg_** calculated using the model should not exceed +/- 2.538 **_mpg_**. 
+
+## Appendix
+
+**EDA-Box Plot**
+```{r  chunk1}
+data(mtcars)
+require('car')
+par(cex=0.7)
+boxplot(mpg~factor(am),data=mtcars, main="Car Mileage Data",
+    xlab="Auto (0/AT) or Manual (1/MT) Transmission ", ylab="Miles Per Gallon") 
+```
+
+**Computation 1**
+```{r chunk2}
+mdl1<-lm(mpg~factor(am),mtcars)
+mdl1$coefficients
+shapiro.test(mdl1$residuals)
+```
+**Computation 2**  
+Shapiro tests the null hypothesis that the data provided is normal and if so 
+ANOVA may be done to compare different models. 
+```{r chunk3}
+mdl2<-lm(mpg~factor(am)+wt,mtcars)
+mdl2$coefficients
+shapiro.test(mdl2$residuals)
+anova(mdl1,mdl2)
+```
+**Computation 3** 
+```{r chunk4}
+mdl9<-lm(mpg~factor(am)+wt+hp,mtcars)
+par(mfrow=c(1,2), cex=0.5)
+plot(mdl9$residuals,main="Residual Plot",xlab="Sample No.", ylab="Residual" )
+hist(mdl9$residuals, main="Histogram of Residuals",ylab="Frequency",
+     xlab="Residual Value")
+shapiro.test(mdl9$residuals)
+```
+  
+Plot shows even dispersion of residuals and 
+Histogram shows residuals are approximately normal. 
+```{r chunk5}
+
+vif(mdl2)
+vif(mdl9)
+anova(mdl2,mdl9)
+summary(mdl9)
+```
+**Computation 4**
+```{r chunk6}
+mdl11<-lm(mpg~factor(am)+wt+hp+disp+cyl,mtcars)
+vif(mdl11)
+shapiro.test(mdl11$residuals)
+anova(mdl9,mdl11)
+```
+**Computation 5**
+```{r chunk7}
+mdl12<-lm(mpg~factor(am)+wt+hp+disp+cyl+drat+qsec+factor(vs)+carb+gear,mtcars)
+vif(mdl12)
+shapiro.test(mdl12$residuals)
+anova(mdl9,mdl12)
+```
+
+
+
+
+
+
+
+
+
+ 
+ 
